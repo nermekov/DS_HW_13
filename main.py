@@ -1,43 +1,38 @@
-"""
-This file ...
-"""
-import pickle
+# main.py
 
-import pandas as pd
-import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+import joblib
+import mlflow
+import mlflow.sklearn
+import numpy as np
 
-app = FastAPI(title="Titanic Survival Prediction Titanic Survival PredictionTitanic Survival PredictionTitanic Survival Prediction API")
+app = FastAPI()
 
 # Load the trained model
-with open("titanic_model.pkl", "rb") as f:
-    model = pickle.load(f)
+model = joblib.load("linear_regression_model.pkl")
 
+# Set MLflow Tracking URI (Make sure MLflow server is running)
+mlflow.set_tracking_uri("http://localhost:5000")
+mlflow.set_experiment("Titanic_Salary_Prediction")
 
-class Passenger(BaseModel):
-    Pclass: int
-    Age: float
-    SibSp: int
-    Parch: int
-    Fare: float
-    Sex_male: int
-    Embarked_Q: int
-    Embarked_S: int
-
-
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to Titanic Survival Prediction API"}
-
+class Experience(BaseModel):
+    years_experience: float
 
 @app.post("/predict")
-def predict(passenger: Passenger):
-    data = passenger.dict()
-    df = pd.DataFrame([data])
-    prediction = model.predict(df)[0]
-    return {"Survived": int(prediction)}
+def predict_salary(experience: Experience):
+    try:
+        # Prepare input for prediction
+        input_data = np.array([[experience.years_experience]])
 
+        with mlflow.start_run():
+            # Make prediction
+            predicted_salary = model.predict(input_data)[0]
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+            # Log input and output in MLflow
+            mlflow.log_param("years_experience", experience.years_experience)
+            mlflow.log_metric("predicted_salary", predicted_salary)
+
+            return {"predicted_salary": predicted_salary}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
