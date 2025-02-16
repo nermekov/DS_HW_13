@@ -19,6 +19,10 @@ mlflow.set_experiment("Titanic_Salary_Prediction")
 class Experience(BaseModel):
     years_experience: float
 
+@app.get("/")
+def read_root():
+    return {"message": "Post only"}
+
 @app.post("/predict")
 def predict_salary(experience: Experience):
     try:

@@ -14,7 +14,7 @@ jupyter_client==8.6.3
 jupyter_core==5.7.2
 matplotlib-inline==0.1.7
 nest-asyncio==1.6.0
-numpy==2.0.2
+numpy
 packaging==24.2
 pandas==2.2.3
 parso==0.8.4
@@ -29,7 +29,7 @@ python-dateutil==2.9.0.post0
 pytz==2025.1
 pyzmq==26.2.1
 scikit-learn==1.6.1
-scipy==1.13.1
+scipy
 six==1.17.0
 stack-data==0.6.3
 threadpoolctl==3.5.0
